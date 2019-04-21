@@ -1,33 +1,35 @@
 import nltk
+import string
 
-def get_inaugural_data(filename):
-    data = nltk.corpus.PlaintextCorpusReader('.', [filename])
-    word_counts = len(data.words(filename))
-    with open(filename, 'r') as fh:
-        for line in fh:
-            word_list = line.replace(',','').replace('\'','').replace('.','').lower().split()
+def process_wc_top_avglen(filename):
+    with open(filename) as f:
+        data = f.read()
+
     
-    fd = nltk.FreqDist(word_list)
+    sents = nltk.sent_tokenize(data)
+    tokens = nltk.word_tokenize(data)
+    words = [word for word in tokens if word.isalpha()]
+    fd = nltk.FreqDist(words)
 
-    return (word_counts, fd)
-
-def get_avg_sentence_len(filename):
-    data = nltk.corpus.PlaintextCorpusReader('.', [filename])
-    sents = (nltk.corpus.inaugural.sents(filename))
-    total_words = 0
-
-    for words in sents:
-        total_words += len(words)
+    total_words = len(tokens)
     
-    return (total_words / len(words))
+    avg_sent_len = total_words / len(sents)
+
+    return (total_words, fd, avg_sent_len)
+
+def print_wc_top_avglen(filename):
+    result = process_wc_top_avglen(filename)
+    avg_len = round(result[2], 2)
+    print (filename)
+    print ('word count: ' + str(result[0]) + ' words')
+    print(result[1].most_common(20))
+    print ("Average sentence length: " + str(avg_len))
+    print ('')
 
 def main():
-    wash_result = get_inaugural_data('1789-Washington.txt')
-    wash_avg_len = get_avg_sentence_len('1789-Washington.txt')
-    print ('1789-Washington.txt: ' + str(wash_result[0]) + ' words')
-    print(wash_result[1].most_common(20))
-    print ("Average sentence length: " + str(wash_avg_len))
-    print ('')
+    print_wc_top_avglen('1789-Washington.txt')
+    print_wc_top_avglen('2009-Obama.txt')
+    print_wc_top_avglen('2017-Trump.txt')
 
 
 if __name__ == '__main__':
