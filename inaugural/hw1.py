@@ -1,33 +1,40 @@
 import nltk
 
-def get_inaugural_data(filename):
-    data = nltk.corpus.PlaintextCorpusReader('.', [filename])
-    word_counts = len(data.words(filename))
-    with open(filename, 'r') as fh:
-        for line in fh:
-            word_list = line.replace(',','').replace('\'','').replace('.','').lower().split()
+#process_wc_top_avglen(filename)
+#This function takes in the filename, and returns the total word counts, NLTK
+#frequency distribution, and the average sentence length as an array
+def process_wc_top_avglen(filename):
+    with open(filename) as f:
+        data = f.read()
+
+    sents = nltk.sent_tokenize(data)
+    tokens = nltk.word_tokenize(data)
+    words = [word for word in tokens if word.isalpha()]
+    fd = nltk.FreqDist(words)
+
+    total_words = len(tokens)
     
-    fd = nltk.FreqDist(word_list)
+    avg_sent_len = total_words / len(sents)
 
-    return (word_counts, fd)
+    return (total_words, fd, avg_sent_len)
 
-def get_avg_sentence_len(filename):
-    data = nltk.corpus.PlaintextCorpusReader('.', [filename])
-    sents = (nltk.corpus.inaugural.sents(filename))
-    total_words = 0
-
-    for words in sents:
-        total_words += len(words)
-    
-    return (total_words / len(words))
+#print_wc_top_avglen(filename)
+#This function takes in the filename, calls process_wc_top_avglen(filename)
+#and prints the filename, total wordcount, the freqdist, and average sentence
+#length with some formatting
+def print_wc_top_avglen(filename):
+    result = process_wc_top_avglen(filename)
+    avg_len = round(result[2], 2)
+    print (filename)
+    print ('word count: ' + str(result[0]) + ' words')
+    print(result[1].most_common(20))
+    print ("Average sentence length: " + str(avg_len))
+    print ('')
 
 def main():
-    wash_result = get_inaugural_data('1789-Washington.txt')
-    wash_avg_len = get_avg_sentence_len('1789-Washington.txt')
-    print ('1789-Washington.txt: ' + str(wash_result[0]) + ' words')
-    print(wash_result[1].most_common(20))
-    print ("Average sentence length: " + str(wash_avg_len))
-    print ('')
+    print_wc_top_avglen('1789-Washington.txt')
+    print_wc_top_avglen('2009-Obama.txt')
+    print_wc_top_avglen('2017-Trump.txt')
 
 
 if __name__ == '__main__':
